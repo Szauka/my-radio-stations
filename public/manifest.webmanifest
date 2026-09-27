@@ -1,0 +1,10 @@
+{
+  "name": "My Radio",
+  "short_name": "My Radio",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#14161b",
+  "theme_color": "#14161b",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

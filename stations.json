@@ -1,0 +1,16 @@
+[
+  { "id": 1,  "name": "Magic FM",       "url": "https://live.magicfm.ro/magicfm.aacp",                              "aliases": ["magic", "magic radio"] },
+  { "id": 2,  "name": "Reper",          "url": "https://stream.clever-host.ro/8014/stream",                         "aliases": [] },
+  { "id": 3,  "name": "Zu",             "url": "https://live4ro.antenaplay.ro/radiozu/16837/seg48000-33672091.aac", "aliases": ["radio zu"], "note": "URL is a single HLS segment, not the live stream – needs a replacement link." },
+  { "id": 4,  "name": "Kiss FM",        "url": "https://live.kissfm.ro/kissfm.aacp",                                "aliases": ["kiss"] },
+  { "id": 5,  "name": "West City",      "url": "https://live.westcityradio.ro:8000/aac",                            "aliases": ["west city radio"] },
+  { "id": 6,  "name": "Digi FM",        "url": "https://edge76.rdsnet.ro:84/digifm/digifm.mp3",                     "aliases": ["digi"] },
+  { "id": 7,  "name": "Etno Vest",      "url": "https://ssl.radios.show/8020/stream",                               "aliases": ["etno"] },
+  { "id": 8,  "name": "Realitatea",     "url": "https://shout.realitatea.net:8001/mixt",                            "aliases": ["realitatea fm"] },
+  { "id": 9,  "name": "Digi 24",        "url": "https://edge76.rcs-rds.ro/digifm/digi24fm.mp3",                     "aliases": ["digi twenty four"] },
+  { "id": 10, "name": "Doza Colinde",   "url": "https://colinde.radiodoza.eu:8146/stream",                          "aliases": ["doza de colinde"] },
+  { "id": 11, "name": "Play Colinde",   "url": "https://mscp1.gazduireradio.ro:9292/stream",                        "aliases": [] },
+  { "id": 12, "name": "Ardeal Colinde", "url": "https://cloud.radiosonicpanel.ro/7877/stream",                      "aliases": ["colinde ardeal"] },
+  { "id": 13, "name": "Nasu Romeo",     "url": "https://asculta.muzicaok.de/radionasuromeo/stream",                 "aliases": [] },
+  { "id": 14, "name": "Disco Mix",      "url": "https://play.discomix.ro/8002/stream",                              "aliases": [] }
+]

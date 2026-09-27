@@ -1,0 +1,357 @@
+:root {
+  color-scheme: dark light;
+  --bg: #14161b;
+  --surface: #1e2129;
+  --surface-hover: #272b35;
+  --border: #2e333e;
+  --text: #eef0f4;
+  --muted: #9aa1ae;
+  --accent: #e8553d;
+  --accent-text: #fff;
+  --ok: #3fb67a;
+  --warn: #e0a43a;
+  --danger: #ef6a5a;
+  --radius: 14px;
+  --player-height: 88px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f6f8;
+    --surface: #fff;
+    --surface-hover: #eef0f4;
+    --border: #dde0e6;
+    --text: #16181d;
+    --muted: #5e6572;
+    --ok: #1f8a55;
+    --warn: #a46c0a;
+    --danger: #c63b2b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  padding-bottom: calc(var(--player-height) + env(safe-area-inset-bottom) + 16px);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+
+.top h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.text-button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.text-button:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.text-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 12px 14px;
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.card:hover {
+  background: var(--surface-hover);
+}
+
+.card:focus-visible,
+.icon-button:focus-visible,
+.text-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card.active {
+  border-color: var(--accent);
+}
+
+.card[data-state='error'] {
+  border-color: var(--danger);
+}
+
+.card-name {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.logo {
+  --hue: 10;
+  width: 72px;
+  height: 72px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #fff;
+  background: hsl(var(--hue) 55% 42%);
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #fff;
+}
+
+.logo.small {
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+}
+
+.logo.small:empty {
+  background: var(--surface-hover);
+}
+
+/* Pulsing dot on the card that is playing (orange) or connecting (amber) */
+.card[data-state='playing']::after,
+.card[data-state='loading']::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.card[data-state='playing']::after {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.card[data-state='loading']::after {
+  background: var(--warn);
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card::after {
+    animation: none !important;
+  }
+}
+
+.badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.badge-checking,
+.badge-skipped {
+  color: var(--muted);
+}
+
+.badge-ok {
+  color: var(--ok);
+}
+
+.badge-fail,
+.badge-timeout {
+  color: var(--danger);
+}
+
+.badge-note {
+  color: var(--warn);
+}
+
+.player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: var(--player-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.now {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.now-text {
+  min-width: 0;
+}
+
+.now-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-status {
+  font-size: 0.85rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-status.error {
+  color: var(--danger);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.icon-button svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.icon-button.primary {
+  width: 52px;
+  height: 52px;
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.icon-button.primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.1);
+}
+
+.volume {
+  width: 110px;
+  accent-color: var(--accent);
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    padding: 14px 8px 12px;
+  }
+
+  .logo {
+    width: 56px;
+    height: 56px;
+    font-size: 1.15rem;
+  }
+
+  .card-name {
+    font-size: 0.9rem;
+  }
+
+  /* Phones use their hardware volume buttons. */
+  .volume {
+    display: none;
+  }
+}

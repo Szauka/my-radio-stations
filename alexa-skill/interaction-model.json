@@ -1,0 +1,74 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my radio",
+      "intents": [
+        {
+          "name": "PlayStationIntent",
+          "slots": [
+            {
+              "name": "station",
+              "type": "STATION_NAME"
+            }
+          ],
+          "samples": [
+            "play {station}",
+            "put on {station}",
+            "listen to {station}",
+            "start {station}",
+            "switch to {station}",
+            "change to {station}",
+            "{station}"
+          ]
+        },
+        {
+          "name": "ListStationsIntent",
+          "slots": [],
+          "samples": [
+            "what stations do you have",
+            "list stations",
+            "list the stations",
+            "which stations are there",
+            "what can I listen to"
+          ]
+        },
+        { "name": "AMAZON.PauseIntent", "samples": [] },
+        { "name": "AMAZON.ResumeIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.NextIntent", "samples": [] },
+        { "name": "AMAZON.PreviousIntent", "samples": [] },
+        { "name": "AMAZON.LoopOnIntent", "samples": [] },
+        { "name": "AMAZON.LoopOffIntent", "samples": [] },
+        { "name": "AMAZON.ShuffleOnIntent", "samples": [] },
+        { "name": "AMAZON.ShuffleOffIntent", "samples": [] },
+        { "name": "AMAZON.StartOverIntent", "samples": [] },
+        { "name": "AMAZON.RepeatIntent", "samples": [] },
+        { "name": "AMAZON.NavigateHomeIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] }
+      ],
+      "types": [
+        {
+          "name": "STATION_NAME",
+          "values": [
+            { "id": "1", "name": { "value": "Magic FM", "synonyms": ["magic", "magic radio", "magic f m", "radio magic"] } },
+            { "id": "2", "name": { "value": "Reper", "synonyms": ["radio reper", "repper", "reaper", "repair"] } },
+            { "id": "3", "name": { "value": "Zu", "synonyms": ["radio zu", "zoo", "radio zoo", "zoo radio", "zu radio"] } },
+            { "id": "4", "name": { "value": "Kiss FM", "synonyms": ["kiss", "kiss f m", "kiss radio"] } },
+            { "id": "5", "name": { "value": "West City", "synonyms": ["west city radio", "west city f m"] } },
+            { "id": "6", "name": { "value": "Digi FM", "synonyms": ["digi", "digi f m", "didgey", "didgy f m", "dij fm"] } },
+            { "id": "7", "name": { "value": "Etno Vest", "synonyms": ["etno", "ethno", "ethno west", "etno west", "radio etno"] } },
+            { "id": "8", "name": { "value": "Realitatea", "synonyms": ["realitatea fm", "realitatea f m", "reality", "realitatia", "real itatea"] } },
+            { "id": "9", "name": { "value": "Digi 24", "synonyms": ["digi twenty four", "digi 24 f m", "didgy twenty four", "digi twenty-four"] } },
+            { "id": "10", "name": { "value": "Doza Colinde", "synonyms": ["doza de colinde", "doza", "dosa colinde", "doza colinda", "radio doza"] } },
+            { "id": "11", "name": { "value": "Play Colinde", "synonyms": ["play colinda", "colinde play", "play carols"] } },
+            { "id": "12", "name": { "value": "Ardeal Colinde", "synonyms": ["colinde ardeal", "ardeal", "ardeal colinda", "ardial colinde"] } },
+            { "id": "13", "name": { "value": "Nasu Romeo", "synonyms": ["nasu", "nashu romeo", "nashoo romeo", "romeo", "radio nasu romeo"] } },
+            { "id": "14", "name": { "value": "Disco Mix", "synonyms": ["disco", "disco mix radio", "radio disco mix"] } }
+          ]
+        }
+      ]
+    }
+  }
+}
