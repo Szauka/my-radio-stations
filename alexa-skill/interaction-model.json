@@ -1,0 +1,130 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my radio",
+      "intents": [
+        {
+          "name": "PlayStationIntent",
+          "slots": [
+            {
+              "name": "station",
+              "type": "STATION_NAME"
+            }
+          ],
+          "samples": [
+            "play {station}",
+            "put on {station}",
+            "listen to {station}",
+            "start {station}",
+            "switch to {station}",
+            "change to {station}",
+            "{station}"
+          ]
+        },
+        {
+          "name": "ListStationsIntent",
+          "slots": [],
+          "samples": [
+            "what stations do you have",
+            "list stations",
+            "list the stations",
+            "which stations are there",
+            "what can I listen to"
+          ]
+        },
+        {
+          "name": "AMAZON.PauseIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ResumeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NextIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PreviousIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.LoopOnIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.LoopOffIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ShuffleOnIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ShuffleOffIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StartOverIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ],
+      "types": [
+        {
+          "name": "STATION_NAME",
+          "values": [
+            { "id": "1", "name": { "value": "Magic FM", "synonyms": ["magic", "magic radio", "magic f m", "radio magic"] } },
+            { "id": "2", "name": { "value": "Radio Miloș", "synonyms": ["milos", "radio milos", "milosh", "radio milosh", "miloš"] } },
+            { "id": "3", "name": { "value": "Antena Satelor", "synonyms": ["antena", "satelor", "antenna satelor", "radio antena satelor"] } },
+            { "id": "4", "name": { "value": "Reper", "synonyms": ["radio reper", "repper", "reaper", "repair"] } },
+            { "id": "5", "name": { "value": "National FM", "synonyms": ["national", "national f m", "nationalfm", "radio national"] } },
+            { "id": "6", "name": { "value": "Zu", "synonyms": ["radio zu", "zoo", "radio zoo", "zoo radio", "zu radio"] } },
+            { "id": "7", "name": { "value": "Kiss FM", "synonyms": ["kiss", "kiss f m", "kiss radio"] } },
+            { "id": "8", "name": { "value": "Europa FM", "synonyms": ["europa", "europa f m", "europe fm", "europa radio"] } },
+            { "id": "9", "name": { "value": "Pro FM", "synonyms": ["pro", "pro f m", "profm", "pro radio"] } },
+            { "id": "10", "name": { "value": "West City", "synonyms": ["west city radio", "west city f m"] } },
+            { "id": "11", "name": { "value": "Radio Reșița", "synonyms": ["resita", "radio resita", "reshitsa", "radio reshitsa", "resitsa"] } },
+            { "id": "12", "name": { "value": "Timișoara FM", "synonyms": ["timisoara", "timisoara fm", "radio timisoara", "timishoara", "timishoara f m"] } },
+            { "id": "13", "name": { "value": "Digi FM", "synonyms": ["digi", "digi f m", "didgey", "didgy f m", "dij fm"] } },
+            { "id": "14", "name": { "value": "Actualități", "synonyms": ["actualitati", "radio romania actualitati", "romania actualitati", "actualitatsi", "actualitat"] } },
+            { "id": "15", "name": { "value": "Etno Vest", "synonyms": ["etno", "ethno", "ethno west", "etno west", "radio etno"] } },
+            { "id": "16", "name": { "value": "Realitatea", "synonyms": ["realitatea fm", "realitatea f m", "reality", "realitatia", "real itatea"] } },
+            { "id": "17", "name": { "value": "Trinitas", "synonyms": ["radio trinitas", "trinity", "trinitas radio"] } },
+            { "id": "18", "name": { "value": "Digi 24", "synonyms": ["digi twenty four", "digi 24 f m", "didgy twenty four", "digi twenty-four"] } },
+            { "id": "19", "name": { "value": "Doza Colinde", "synonyms": ["doza de colinde", "doza", "dosa colinde", "doza colinda", "radio doza"] } },
+            { "id": "20", "name": { "value": "Play Colinde", "synonyms": ["play colinda", "colinde play", "play carols"] } },
+            { "id": "21", "name": { "value": "Ardeal Colinde", "synonyms": ["colinde ardeal", "ardeal", "ardeal colinda", "ardial colinde"] } },
+            { "id": "22", "name": { "value": "Nasu Romeo", "synonyms": ["nasu", "nashu romeo", "nashoo romeo", "romeo", "radio nasu romeo"] } },
+            { "id": "23", "name": { "value": "Disco Mix", "synonyms": ["disco", "disco mix radio", "radio disco mix"] } },
+            { "id": "24", "name": { "value": "Banat Timișoara", "synonyms": ["banat", "radio banat", "banat timisoara", "banat fm"] } },
+            { "id": "25", "name": { "value": "Radio Popular", "synonyms": ["popular", "popular radio", "radio populare"] } }
+          ]
+        }
+      ]
+    }
+  }
+}
