@@ -73,14 +73,23 @@ function findIndexById(id) {
   return STATIONS.findIndex(s => String(s.id) === String(id));
 }
 
-// The token of the currently loaded stream is the station id.
+// A stream's token is the station id, plus "~N" after N stations in a row
+// failed and were skipped (e.g. "6~1"). Alexa hands the token back with every
+// playback event, so this is how the skill remembers without a database.
+const MAX_SKIPS = 3;
+
+function parseToken(token) {
+  const [id, skips] = String(token || '').split('~');
+  return { index: findIndexById(id), skips: Number(skips) || 0 };
+}
+
 function currentIndex(handlerInput) {
   const ap = handlerInput.requestEnvelope.context.AudioPlayer;
-  const idx = ap && ap.token ? findIndexById(ap.token) : -1;
+  const idx = ap && ap.token ? parseToken(ap.token).index : -1;
   return idx >= 0 ? idx : 0;
 }
 
-function play(handlerInput, index, speech) {
+function play(handlerInput, index, speech, skips = 0) {
   const n = STATIONS.length;
   const station = STATIONS[((index % n) + n) % n];
   const metadata = { title: station.name, subtitle: 'Live radio' };
@@ -88,7 +97,7 @@ function play(handlerInput, index, speech) {
   const background = station.bg || BACKGROUND;
   if (background) metadata.backgroundImage = { sources: [{ url: background }] };
   const rb = handlerInput.responseBuilder
-    .addAudioPlayerPlayDirective('REPLACE_ALL', streamUrl(station), String(station.id), 0, undefined, metadata)
+    .addAudioPlayerPlayDirective('REPLACE_ALL', streamUrl(station), skips ? `${station.id}~${skips}` : String(station.id), 0, undefined, metadata)
     .withShouldEndSession(true);
   if (speech) rb.speak(speech);
   return rb.getResponse();
@@ -216,15 +225,34 @@ const PlaybackControllerHandler = {
 };
 
 // ---------------------------------------------------------------------------
-// AudioPlayer lifecycle events – acknowledge with an empty response.
+// A station that fails to play (offline, moved, relay error) is skipped: the
+// next station starts instead. After MAX_SKIPS failures in a row it stops, so
+// a network outage doesn't cycle through every station. No speech is allowed
+// in a response to an AudioPlayer event, so the switch is silent.
+// ---------------------------------------------------------------------------
+const PlaybackFailedHandler = {
+  canHandle: h => Alexa.getRequestType(h.requestEnvelope) === 'AudioPlayer.PlaybackFailed',
+  handle(h) {
+    const request = h.requestEnvelope.request;
+    const { index, skips } = parseToken(request.token);
+    const failed = index >= 0 ? STATIONS[index].name : request.token;
+    console.log(`Playback failed for ${failed}:`, JSON.stringify(request.error));
+    if (index < 0 || skips + 1 > MAX_SKIPS) {
+      console.log('Not skipping: too many failures in a row.');
+      return h.responseBuilder.getResponse();
+    }
+    const next = STATIONS[(index + 1) % STATIONS.length].name;
+    console.log(`Skipping to ${next}.`);
+    return play(h, index + 1, undefined, skips + 1);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Other AudioPlayer lifecycle events – acknowledge with an empty response.
 // ---------------------------------------------------------------------------
 const AudioPlayerEventHandler = {
   canHandle: h => Alexa.getRequestType(h.requestEnvelope).startsWith('AudioPlayer.'),
   handle(h) {
-    const type = Alexa.getRequestType(h.requestEnvelope);
-    if (type === 'AudioPlayer.PlaybackFailed') {
-      console.log('Playback failed:', JSON.stringify(h.requestEnvelope.request.error));
-    }
     return h.responseBuilder.getResponse();
   }
 };
@@ -263,6 +291,7 @@ exports.handler = Alexa.SkillBuilders.custom()
     HelpHandler,
     FallbackHandler,
     PlaybackControllerHandler,
+    PlaybackFailedHandler,
     AudioPlayerEventHandler,
     SessionEndedHandler,
     SystemExceptionHandler
