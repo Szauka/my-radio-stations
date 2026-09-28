@@ -63,9 +63,9 @@ Requires Node 20+ (built with Node 22).
 | `proxy/` | Cloudflare Worker that re-serves `http://` and non-443 streams over HTTPS for Alexa and the web player. Setup in `proxy/README.md` |
 | `scripts/make-art.mjs` | Draws the logos and backgrounds and renders them to PNG with headless Chrome (macOS) |
 | `src/stations.ts` | Loads `stations.json`, plus helpers (logo URL, wrap-around index, HLS detection, placeholder initials/colour) |
-| `src/player.ts` | `RadioPlayer`: one `<audio>` element; play/stop/toggle; error messages; loads `hls.js/light` only for `.m3u8` URLs. `probeStream()` is used by "Check streams" |
+| `src/player.ts` | `RadioPlayer`: one `<audio>` element; play/stop/toggle; error messages; loads `hls.js/light` only for `.m3u8` URLs |
 | `src/main.ts` | UI: station grid, player bar, keyboard shortcuts, Media Session (lock screen/media keys), remembers last station + volume in localStorage |
-| `src/style.css` | Styles; dark by default, light when the OS is light; phone layout under 560px |
+| `src/style.css` | Styles; dark by default, light when the OS is light; under 560px wide, a one-column list with big text and tap targets |
 | `src/hls-light.d.ts` | Type declaration so `hls.js/light` uses hls.js's types |
 | `index.html`, `public/` | Page shell, icon, web app manifest (add to home screen) |
 | `test/stations.test.ts` | Unit tests. **Also fails if `stations.json`, `alexa-skill/index.js` and `interaction-model.json` disagree on ids/names/URLs** |
@@ -86,7 +86,7 @@ Scripts: `npm run dev`, `npm test`, `npm run typecheck`, `npm run build`, `npm r
 
 1. **Push the branch** (see above), open a PR into `main`, merge it.
 2. **Turn on Pages:** repo Settings → Pages → Build and deployment → Source: **GitHub Actions**. The first deploy runs on the next push to `main` (or run the workflow manually from the Actions tab).
-3. **Check the real streams:** open the site (or `npm run dev`), press **Check streams**, then play a few. Note which fail.
+3. **Check the real streams:** open the site (or `npm run dev`) and play a few. Note which fail.
 4. ~~**Fix Zu:**~~ Done: it now uses the live HLS stream `https://live7digi.antenaplay.ro/radiozu/radiozu-48000.m3u8`.
 5. ~~**Deploy the HTTPS relay**~~ Done: it runs at `https://my-radio-relay.szaukad.workers.dev`, deployed from the Cloudflare dashboard. After changing stations, run `npm run build:relay` and paste `proxy/worker.dashboard.js` into the dashboard editor again.
 5a. **National FM** was offline on 28 Sep 2026 on both known addresses. Find a new link or remove it.
