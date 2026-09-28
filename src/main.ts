@@ -1,6 +1,6 @@
 import './style.css';
-import { probeStream, RadioPlayer, type ProbeResult } from './player';
-import { hueFor, initials, logoUrl, STATIONS, streamUrl, wrapIndex, type Station } from './stations';
+import { RadioPlayer } from './player';
+import { hueFor, initials, logoUrl, STATIONS, wrapIndex, type Station } from './stations';
 
 const LAST_STATION_KEY = 'my-radio:last-station';
 const VOLUME_KEY = 'my-radio:volume';
@@ -33,10 +33,8 @@ const toggleButton = $<HTMLButtonElement>('toggle');
 const iconPlay = document.getElementById('icon-play')!;
 const iconStop = document.getElementById('icon-stop')!;
 const volume = $<HTMLInputElement>('volume');
-const checkButton = $<HTMLButtonElement>('check');
 
 const player = new RadioPlayer();
-const probes = new Map<number, ProbeResult | 'checking'>();
 
 function renderLogo(el: HTMLElement, station: Station | null): void {
   el.replaceChildren();
@@ -55,14 +53,6 @@ function renderLogo(el: HTMLElement, station: Station | null): void {
   }
 }
 
-const PROBE_LABEL: Record<ProbeResult | 'checking', string> = {
-  checking: 'Checking…',
-  ok: 'Works',
-  fail: 'Failed',
-  timeout: 'Timed out',
-  skipped: 'Play to test',
-};
-
 function renderList(): void {
   list.replaceChildren(
     ...STATIONS.map((station) => {
@@ -77,26 +67,22 @@ function renderList(): void {
       logo.setAttribute('aria-hidden', 'true');
       renderLogo(logo, station);
 
+      const text = document.createElement('span');
+      text.className = 'card-text';
       const name = document.createElement('span');
       name.className = 'card-name';
       name.textContent = station.name;
-
-      button.append(logo, name);
-
-      const probe = probes.get(station.id);
-      if (probe) {
-        const badge = document.createElement('span');
-        badge.className = `badge badge-${probe}`;
-        badge.textContent = PROBE_LABEL[probe];
-        button.append(badge);
-      }
+      text.append(name);
       if (station.note) {
+        // Shown as text rather than a tooltip: phones have no hover.
         button.title = station.note;
         const note = document.createElement('span');
-        note.className = 'badge badge-note';
-        note.textContent = 'Known issue';
-        button.append(note);
+        note.className = 'card-note';
+        note.textContent = station.note;
+        text.append(note);
       }
+
+      button.append(logo, text);
 
       button.addEventListener('click', () => {
         if (player.station?.id === station.id && player.state !== 'idle' && player.state !== 'error') player.stop();
@@ -183,23 +169,6 @@ function setupMediaSession(): void {
   }
 }
 
-async function checkAllStreams(): Promise<void> {
-  checkButton.disabled = true;
-  for (const s of STATIONS) probes.set(s.id, 'checking');
-  renderList();
-
-  // A few at a time: some servers limit concurrent connections.
-  const queue = [...STATIONS];
-  const worker = async () => {
-    for (let s = queue.shift(); s; s = queue.shift()) {
-      probes.set(s.id, await probeStream(streamUrl(s)));
-      renderList();
-    }
-  };
-  await Promise.all([worker(), worker(), worker()]);
-  checkButton.disabled = false;
-}
-
 // Wiring
 player.onChange = () => {
   renderPlayer();
@@ -209,7 +178,6 @@ player.onChange = () => {
 toggleButton.addEventListener('click', () => player.toggle());
 $('prev').addEventListener('click', () => step(-1));
 $('next').addEventListener('click', () => step(1));
-checkButton.addEventListener('click', () => void checkAllStreams());
 
 const savedVolume = Number(load(VOLUME_KEY) ?? '0.8');
 player.volume = Number.isFinite(savedVolume) ? savedVolume : 0.8;

@@ -120,30 +120,3 @@ export class RadioPlayer {
     this.onChange();
   }
 }
-
-export type ProbeResult = 'ok' | 'fail' | 'timeout' | 'skipped';
-
-/**
- * Checks whether a stream starts loading, without playing it out loud.
- * HLS streams need hls.js outside Safari, so they're only checked where native.
- */
-export function probeStream(url: string, timeoutMs = 12000): Promise<ProbeResult> {
-  const audio = new Audio();
-  if (isHls(url) && !audio.canPlayType('application/vnd.apple.mpegurl')) return Promise.resolve('skipped');
-
-  return new Promise((resolve) => {
-    const finish = (result: ProbeResult) => {
-      clearTimeout(timer);
-      audio.removeAttribute('src');
-      audio.load();
-      resolve(result);
-    };
-    const timer = setTimeout(() => finish('timeout'), timeoutMs);
-    audio.muted = true;
-    audio.preload = 'auto';
-    audio.addEventListener('loadeddata', () => finish('ok'), { once: true });
-    audio.addEventListener('error', () => finish('fail'), { once: true });
-    audio.src = url;
-    audio.load();
-  });
-}

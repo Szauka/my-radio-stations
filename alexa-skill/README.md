@@ -25,7 +25,7 @@ Alexa only plays HTTPS streams with a valid certificate on the standard port 443
 
 National FM was offline when checked on 28 Sep 2026 and may need a new link.
 
-Check **Code → CloudWatch Logs** for "Playback failed" when a station stays silent.
+If a station fails to play, the skill silently skips to the next one. After three failures in a row it stops, so a network outage doesn't cycle through every station. **Code → CloudWatch Logs** shows "Playback failed for …" and "Skipping to …" for each skip.
 
 ## Station art
 
