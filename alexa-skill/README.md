@@ -1,6 +1,6 @@
 # My Radio – Alexa skill for Echo Show
 
-Private Alexa skill that streams 14 Romanian internet radio stations on your Echo Show.
+Private Alexa skill that streams 25 Romanian internet radio stations on your Echo Show.
 
 - **Skill name:** My Radio
 - **Invocation name:** `my radio`
@@ -21,32 +21,24 @@ Private Alexa skill that streams 14 Romanian internet radio stations on your Ech
 
 Edit the `STATIONS` list at the top of `index.js`. Every station's `id` must match an `id` in the `STATION_NAME` type in `interaction-model.json`, and the synonyms there are what Alexa recognises by voice.
 
-Stream requirements: HTTPS, valid certificate, ideally the standard port 443. These may fail and need replacement links:
+Alexa only plays HTTPS streams with a valid certificate on the standard port 443. Each station keeps its real stream URL, even when it's `http://` or uses another port. `streamUrl()` sends those stations to the HTTPS relay in `proxy/` instead, at `RELAY_BASE + '/s/' + id`. Deploy the relay and set `RELAY_BASE` first (see `proxy/README.md`). Until then, 16 of the 25 stations won't play on Alexa.
 
-- **Zu:** the URL is a single HLS segment, not the live stream. Find the `.m3u8` or a direct stream (radio-browser.info).
-- **Non-standard ports:** West City (:8000), Digi FM (:84), Realitatea (:8001), Doza Colinde (:8146), Play Colinde (:9292).
+National FM was offline when checked on 28 Sep 2026 and may need a new link.
 
 Check **Code → CloudWatch Logs** for "Playback failed" when a station stays silent.
 
 ## Station art
 
-Currently all stations use one Google-hosted radio icon:
-`https://fonts.gstatic.com/s/e/notoemoji/latest/1f4fb/512.png`
-
-Other icons are at the same address, with `1f4fb` replaced: `1f3a7` headphones, `1f3b6` music notes, `1f3b5` music note, `1f399` studio microphone.
-
-To use your own logos (PNG/JPG, ~512×512, public HTTPS), the easiest place is this repo: put them in a `logos/` folder at the repo root, push, and make sure the repo is **public**. `index.js` already has `ART_BASE` pointing there:
+Every station has its own logo (512×512) and Echo Show background (1024×640) in the repo's `logos/` folder, for example `kiss-fm.png` and `kiss-fm-bg.png`. `index.js` loads them through jsDelivr, so the repo must be **public** and the files must be on `main`:
 `https://cdn.jsdelivr.net/gh/Szauka/my-radio-stations@main/logos/`
 
-Other hosting options:
-
-- **GitHub** (public repo): `https://cdn.jsdelivr.net/gh/USER/REPO@main/logos/kiss.png`
-- **Vercel:** put files in `public/logos/` → `https://your-project.vercel.app/logos/kiss.png`
-
 ```js
-const ART_BASE = 'https://cdn.jsdelivr.net/gh/USER/REPO@main/logos/';
-{ id: 4, name: 'Kiss FM', url: '...', aliases: ['kiss'], art: ART_BASE + 'kiss.png' },
+{ id: 4, name: 'Kiss FM', url: '...', aliases: ['kiss'], art: ART_BASE + 'kiss-fm.png', bg: ART_BASE + 'kiss-fm-bg.png' },
 ```
+
+The images are drawn by `scripts/make-art.mjs` (colours, symbol and wording per station). Change a station there and run `node scripts/make-art.mjs kiss-fm` on a Mac with Google Chrome to redraw it. jsDelivr caches `@main` for up to 7 days, so changed images can take a while to show.
+
+A station without `art` falls back to Google's radio emoji (`GENERIC_RADIO_ART`). `BACKGROUND` is a fallback for stations without `bg`.
 
 ## Using it on the Echo Show
 

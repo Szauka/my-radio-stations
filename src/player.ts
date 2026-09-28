@@ -1,5 +1,5 @@
 import type HlsType from 'hls.js';
-import { isHls, type Station } from './stations';
+import { isHls, streamUrl, type Station } from './stations';
 
 export type PlayerState = 'idle' | 'loading' | 'playing' | 'error';
 
@@ -62,8 +62,9 @@ export class RadioPlayer {
     this.error = '';
     this.set('loading');
 
+    const url = streamUrl(station);
     try {
-      if (isHls(station.url) && !this.audio.canPlayType('application/vnd.apple.mpegurl')) {
+      if (isHls(url) && !this.audio.canPlayType('application/vnd.apple.mpegurl')) {
         // The light build skips subtitles/DRM, which radio doesn't need. Same API.
         const { default: Hls } = await import('hls.js/light');
         if (generation !== this.generation) return;
@@ -73,10 +74,10 @@ export class RadioPlayer {
         hls.on(Hls.Events.ERROR, (_event, data) => {
           if (data.fatal && generation === this.generation) this.fail(`Stream error (${data.details})`);
         });
-        hls.loadSource(station.url);
+        hls.loadSource(url);
         hls.attachMedia(this.audio);
       } else {
-        this.audio.src = station.url;
+        this.audio.src = url;
       }
       await this.audio.play();
     } catch (err) {

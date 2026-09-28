@@ -2,8 +2,9 @@
  * My Radio – Alexa skill for streaming internet radio stations
  * Paste this into lambda/index.js in the Alexa-hosted "Code" tab.
  *
- * IMPORTANT: every stream URL must be HTTPS with a valid certificate.
- * Plain http:// streams will NOT play on Alexa.
+ * Alexa only plays HTTPS streams with a valid certificate on port 443.
+ * Other stations (http://, or https:// on another port) are played through
+ * the HTTPS relay in proxy/ – see RELAY_BASE below.
  * Supported formats: MP3, AAC/MP4, HLS (.m3u8), PLS, M3U.
  */
 const Alexa = require('ask-sdk-core');
@@ -11,36 +12,59 @@ const Alexa = require('ask-sdk-core');
 // ---------------------------------------------------------------------------
 // 1. YOUR STATION LIST
 //    'id' must match the slot value ID in interaction-model.json (STATION_NAME).
-//    'art' is optional; shown on the Echo Show screen (HTTPS image).
+//    'art' (512x512 logo) and 'bg' (1024x640 background) are optional HTTPS
+//    images shown on the Echo Show. Both are made by scripts/make-art.mjs.
 //    'aliases' are just a reminder here – the spoken variants Alexa actually
 //    recognises are the synonyms in interaction-model.json.
 // ---------------------------------------------------------------------------
-// Google-hosted Noto "radio" emoji, 512x512 PNG. Swap for any HTTPS PNG/JPG you like.
+// Google-hosted Noto "radio" emoji, 512x512 PNG, used for a station without 'art'.
 const GENERIC_RADIO_ART = 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f4fb/512.png';
 
 // Your own logos: push PNG/JPG files to the 'logos' folder of the
 // Szauka/my-radio-stations GitHub repo (the repo must be public), then set a
-// station's art to e.g.  art: ART_BASE + 'kiss.png'
+// station's art to e.g.  art: ART_BASE + 'kiss-fm.png'
 const ART_BASE = 'https://cdn.jsdelivr.net/gh/Szauka/my-radio-stations@main/logos/';
 
 const STATIONS = [
-  { id: 1,  name: 'Magic FM',       url: 'https://live.magicfm.ro/magicfm.aacp',                              aliases: ['magic', 'magic radio'], art: GENERIC_RADIO_ART },
-  { id: 2,  name: 'Reper',          url: 'https://stream.clever-host.ro/8014/stream',                         aliases: [],                       art: GENERIC_RADIO_ART },
-  { id: 3,  name: 'Zu',             url: 'https://live4ro.antenaplay.ro/radiozu/16837/seg48000-33672091.aac', aliases: ['radio zu'],            art: GENERIC_RADIO_ART },
-  { id: 4,  name: 'Kiss FM',        url: 'https://live.kissfm.ro/kissfm.aacp',                                aliases: ['kiss'],                 art: GENERIC_RADIO_ART },
-  { id: 5,  name: 'West City',      url: 'https://live.westcityradio.ro:8000/aac',                            aliases: ['west city radio'],      art: GENERIC_RADIO_ART },
-  { id: 6,  name: 'Digi FM',        url: 'https://edge76.rdsnet.ro:84/digifm/digifm.mp3',                     aliases: ['digi'],                 art: GENERIC_RADIO_ART },
-  { id: 7,  name: 'Etno Vest',      url: 'https://ssl.radios.show/8020/stream',                               aliases: ['etno'],                 art: GENERIC_RADIO_ART },
-  { id: 8,  name: 'Realitatea',     url: 'https://shout.realitatea.net:8001/mixt',                            aliases: ['realitatea fm'],        art: GENERIC_RADIO_ART },
-  { id: 9,  name: 'Digi 24',        url: 'https://edge76.rcs-rds.ro/digifm/digi24fm.mp3',                     aliases: ['digi twenty four'],     art: GENERIC_RADIO_ART },
-  { id: 10, name: 'Doza Colinde',   url: 'https://colinde.radiodoza.eu:8146/stream',                          aliases: ['doza de colinde'],      art: GENERIC_RADIO_ART },
-  { id: 11, name: 'Play Colinde',   url: 'https://mscp1.gazduireradio.ro:9292/stream',                        aliases: [],                       art: GENERIC_RADIO_ART },
-  { id: 12, name: 'Ardeal Colinde', url: 'https://cloud.radiosonicpanel.ro/7877/stream',                      aliases: ['colinde ardeal'],       art: GENERIC_RADIO_ART },
-  { id: 13, name: 'Nasu Romeo',     url: 'https://asculta.muzicaok.de/radionasuromeo/stream',                 aliases: [],                       art: GENERIC_RADIO_ART },
-  { id: 14, name: 'Disco Mix',      url: 'https://play.discomix.ro/8002/stream',                              aliases: [],                       art: GENERIC_RADIO_ART }
+  { id: 1,  name: 'Magic FM',         url: 'https://live.magicfm.ro/magicfm.aacp',                            aliases: ['magic', 'magic radio'],                     art: ART_BASE + 'magic-fm.png', bg: ART_BASE + 'magic-fm-bg.png' },
+  { id: 2,  name: 'Radio Miloș',      url: 'http://radiomilos.ro:8803/stream',                                aliases: ['milos', 'radio milos'],                     art: ART_BASE + 'radio-milos.png', bg: ART_BASE + 'radio-milos-bg.png' },
+  { id: 3,  name: 'Antena Satelor',   url: 'http://stream2.srr.ro:8042/;'              ,                      aliases: ['antena satelor'],                           art: ART_BASE + 'antena-satelor.png', bg: ART_BASE + 'antena-satelor-bg.png' },
+  { id: 4,  name: 'Reper',            url: 'https://stream.clever-host.ro/8014/stream',                       aliases: [],                                           art: ART_BASE + 'reper.png', bg: ART_BASE + 'reper-bg.png' },
+  { id: 5,  name: 'National FM',      url: 'http://live3.nationalfm.ro:8001/;',                               aliases: ['national', 'nationalfm'],                   art: ART_BASE + 'national-fm.png', bg: ART_BASE + 'national-fm-bg.png' },
+  { id: 6,  name: 'Zu',               url: 'https://live7digi.antenaplay.ro/radiozu/radiozu-48000.m3u8',      aliases: ['radio zu'],                                 art: ART_BASE + 'zu.png', bg: ART_BASE + 'zu-bg.png' },
+  { id: 7,  name: 'Kiss FM',          url: 'https://live.kissfm.ro/kissfm.aacp',                              aliases: ['kiss'],                                     art: ART_BASE + 'kiss-fm.png', bg: ART_BASE + 'kiss-fm-bg.png' },
+  { id: 8,  name: 'Europa FM',        url: 'https://astreaming.edi.ro:8443/EuropaFM_aac',                     aliases: ['europa'],                                   art: ART_BASE + 'europa-fm.png', bg: ART_BASE + 'europa-fm-bg.png' },
+  { id: 9,  name: 'Pro FM',           url: 'http://edge126.rdsnet.ro:84/profm/profm.mp3',                     aliases: ['profm', 'pro'],                             art: ART_BASE + 'pro-fm.png', bg: ART_BASE + 'pro-fm-bg.png' },
+  { id: 10, name: 'West City',        url: 'https://live.westcityradio.ro:8000/aac',                          aliases: ['west city radio'],                          art: ART_BASE + 'west-city.png', bg: ART_BASE + 'west-city-bg.png' },
+  { id: 11, name: 'Radio Reșița',     url: 'http://stream2.srr.ro:8344/;'              ,                        aliases: ['resita', 'radio resita'],                   art: ART_BASE + 'radio-resita.png', bg: ART_BASE + 'radio-resita-bg.png' },
+  { id: 12, name: 'Timișoara FM',     url: 'http://stream2.srr.ro:8354/',                                       aliases: ['timisoara', 'radio timisoara'],             art: ART_BASE + 'timisoara-fm.png', bg: ART_BASE + 'timisoara-fm-bg.png' },
+  { id: 13, name: 'Digi FM',          url: 'http://edge76.rdsnet.ro:84/digifm/digifm.mp3' ,                   aliases: ['digi'],                                     art: ART_BASE + 'digi-fm.png', bg: ART_BASE + 'digi-fm-bg.png' },
+  { id: 14, name: 'Actualități',      url: 'http://stream2.srr.ro:8002/;'                     ,                 aliases: ['actualitati', 'radio romania actualitati'], art: ART_BASE + 'actualitati.png', bg: ART_BASE + 'actualitati-bg.png' },
+  { id: 15, name: 'Etno Vest',        url: 'https://ssl.radios.show/8020/stream',                             aliases: ['etno'],                                     art: ART_BASE + 'etno-vest.png', bg: ART_BASE + 'etno-vest-bg.png' },
+  { id: 16, name: 'Realitatea',       url: 'https://shout.realitatea.net:8001/mixt',                          aliases: ['realitatea fm'],                            art: ART_BASE + 'realitatea.png', bg: ART_BASE + 'realitatea-bg.png' },
+  { id: 17, name: 'Trinitas',         url: 'https://live.radiotrinitas.ro:8003/;stream.nsv',                  aliases: ['radio trinitas'],                           art: ART_BASE + 'trinitas.png', bg: ART_BASE + 'trinitas-bg.png' },
+  { id: 18, name: 'Digi 24',          url: 'https://edge76.rcs-rds.ro/digifm/digi24fm.mp3',                   aliases: ['digi twenty four'],                         art: ART_BASE + 'digi-24.png', bg: ART_BASE + 'digi-24-bg.png' },
+  { id: 19, name: 'Doza Colinde',     url: 'https://colinde.radiodoza.eu:8146/stream',                        aliases: ['doza de colinde'],                          art: ART_BASE + 'doza-colinde.png', bg: ART_BASE + 'doza-colinde-bg.png' },
+  { id: 20, name: 'Play Colinde',     url: 'http://mscp1.gazduireradio.ro:9292/stream' ,                      aliases: [],                                           art: ART_BASE + 'play-colinde.png', bg: ART_BASE + 'play-colinde-bg.png' },
+  { id: 21, name: 'Ardeal Colinde',   url: 'https://cloud.radiosonicpanel.ro/7877/stream',                    aliases: ['colinde ardeal'],                           art: ART_BASE + 'ardeal-colinde.png', bg: ART_BASE + 'ardeal-colinde-bg.png' },
+  { id: 22, name: 'Nasu Romeo',       url: 'https://asculta.muzicaok.de/radionasuromeo/stream',               aliases: [],                                           art: ART_BASE + 'nasu-romeo.png', bg: ART_BASE + 'nasu-romeo-bg.png' },
+  { id: 23, name: 'Disco Mix',        url: 'https://play.discomix.ro/8002/stream',                            aliases: [],                                           art: ART_BASE + 'disco-mix.png', bg: ART_BASE + 'disco-mix-bg.png' },
+  { id: 24, name: 'Banat Timișoara',  url: 'http://live.radiobanatfm.com:8002/;',                             aliases: ['radio banat', 'banat'],                     art: ART_BASE + 'banat-timisoara.png', bg: ART_BASE + 'banat-timisoara-bg.png' },
+  { id: 25, name: 'Radio Popular',    url: 'http://livemp3.radiopopular.ro:7777/;',                           aliases: ['popular'],                                  art: ART_BASE + 'radio-popular.png', bg: ART_BASE + 'radio-popular-bg.png' }
 ];
 
-const BACKGROUND = ''; // optional HTTPS background image for the Echo Show, 1024x640
+const BACKGROUND = ''; // optional fallback background for stations without 'bg', 1024x640
+
+// HTTPS relay for streams Alexa can't play directly (see proxy/README.md).
+// Alexa only plays HTTPS on the standard port 443, so plain http:// streams and
+// https:// streams on other ports (e.g. :8000, :8443) go through the relay.
+// Same value as RELAY_BASE in src/stations.ts.
+const RELAY_BASE = 'https://my-radio-relay.szaukad.workers.dev';
+
+function streamUrl(station) {
+  const u = new URL(station.url);
+  return u.protocol === 'https:' && !u.port ? station.url : `${RELAY_BASE}/s/${station.id}`;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -60,10 +84,11 @@ function play(handlerInput, index, speech) {
   const n = STATIONS.length;
   const station = STATIONS[((index % n) + n) % n];
   const metadata = { title: station.name, subtitle: 'Live radio' };
-  if (station.art) metadata.art = { sources: [{ url: station.art }] };
-  if (BACKGROUND) metadata.backgroundImage = { sources: [{ url: BACKGROUND }] };
+  metadata.art = { sources: [{ url: station.art || GENERIC_RADIO_ART }] };
+  const background = station.bg || BACKGROUND;
+  if (background) metadata.backgroundImage = { sources: [{ url: background }] };
   const rb = handlerInput.responseBuilder
-    .addAudioPlayerPlayDirective('REPLACE_ALL', station.url, String(station.id), 0, undefined, metadata)
+    .addAudioPlayerPlayDirective('REPLACE_ALL', streamUrl(station), String(station.id), 0, undefined, metadata)
     .withShouldEndSession(true);
   if (speech) rb.speak(speech);
   return rb.getResponse();

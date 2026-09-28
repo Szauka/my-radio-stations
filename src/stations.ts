@@ -21,6 +21,21 @@ export function logoUrl(station: Station): string | undefined {
   return station.logo ? LOGO_BASE + station.logo : undefined;
 }
 
+// The HTTPS relay in proxy/ (a Cloudflare Worker). Same value as RELAY_BASE in
+// alexa-skill/index.js.
+export const RELAY_BASE = 'https://my-radio-relay.szaukad.workers.dev';
+
+/** Alexa only plays HTTPS on the standard port; everything else goes via the relay. */
+export function needsRelayForAlexa(url: string): boolean {
+  const u = new URL(url);
+  return u.protocol !== 'https:' || u.port !== '';
+}
+
+/** Browsers play HTTPS on any port, so only plain http:// goes via the relay here. */
+export function streamUrl(station: Station): string {
+  return new URL(station.url).protocol === 'https:' ? station.url : `${RELAY_BASE}/s/${station.id}`;
+}
+
 /** Wraps next/previous around the ends of the list, like the Alexa skill. */
 export function wrapIndex(index: number, length: number): number {
   return ((index % length) + length) % length;

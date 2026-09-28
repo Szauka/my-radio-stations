@@ -1,6 +1,6 @@
 import './style.css';
 import { probeStream, RadioPlayer, type ProbeResult } from './player';
-import { hueFor, initials, logoUrl, STATIONS, wrapIndex, type Station } from './stations';
+import { hueFor, initials, logoUrl, STATIONS, streamUrl, wrapIndex, type Station } from './stations';
 
 const LAST_STATION_KEY = 'my-radio:last-station';
 const VOLUME_KEY = 'my-radio:volume';
@@ -192,7 +192,7 @@ async function checkAllStreams(): Promise<void> {
   const queue = [...STATIONS];
   const worker = async () => {
     for (let s = queue.shift(); s; s = queue.shift()) {
-      probes.set(s.id, await probeStream(s.url));
+      probes.set(s.id, await probeStream(streamUrl(s)));
       renderList();
     }
   };
